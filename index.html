@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>wollage</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+	<script defer src="script.js"></script>
+</head>
+
+<body>
+	<main>
+		<header>
+			<h1>wollage</h1>
+		</header>
+
+		<section class="inputs">
+			<div class="dropzone" id="dropzone" tabindex="0">
+				<span class="picker-title">drag or click to add images</span>
+				<span class="picker-subtitle">accepts png, jpg, and webp</span>
+				<input id="fileInput" type="file" accept="image/png, image/jpeg, image/webp" multiple aria-hidden="true">
+			</div>
+
+			<button class="primary" id="clearBtn" type="button">clear selection</button>
+		</section>
+
+		<section class="controls">
+			<h2>output settings</h2>
+			<div class="settings-grid">
+				<label class="field">
+					<span class="field-label">background color</span>
+					<input id="bgInput" type="color" value="#ffffff" aria-label="background color">
+				</label>
+
+				<label class="field">
+					<span class="field-label">width (px)</span>
+					<input id="widthInput" type="number" min="256" max="8000" step="16" value="1920" aria-label="output width">
+				</label>
+
+				<label class="field">
+					<span class="field-label">height (px)</span>
+					<input id="heightInput" type="number" min="256" max="8000" step="16" value="1080" aria-label="output height">
+				</label>
+			</div>
+
+			<div class="controls-actions">
+				<button class="secondary" id="generateBtn" type="button">generate output</button>
+				<p id="statusText" class="status" aria-live="polite">waiting to generate</p>
+			</div>
+		</section>
+
+		<section>
+			<div id="fileList" class="file-list" aria-live="polite">
+				<p id="placeholder" class="placeholder">no images added</p>
+			</div>
+		</section>
+	</main>
+</body>
+
+</html>

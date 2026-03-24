@@ -1,0 +1,243 @@
+:root {
+	--bg: #f3f5f4;
+	--surface: #ffffff;
+	--accent: #1aa860;
+	--accent-soft: #e5f5eb;
+	--text: #1d2624;
+	--muted: #56605d;
+	--border: #dce3de;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	font-family: "Space Grotesk", sans-serif;
+	color: var(--text);
+	background: var(--bg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1.5rem;
+}
+
+main {
+	width: min(960px, 100%);
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: 18px;
+	padding: clamp(1.5rem, 4vw, 2.5rem);
+	box-shadow: 0 16px 40px rgba(17, 34, 26, 0.08);
+}
+
+h1 {
+	margin: 0 0 0.3rem;
+	font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+p {
+	margin: 0 0 1.5rem;
+	color: var(--muted);
+}
+
+.section-note {
+	margin: -0.8rem 0 1rem;
+	color: var(--muted);
+	font-size: 0.92rem;
+}
+
+.inputs {
+	display: grid;
+	gap: 1rem;
+	margin-bottom: 1.75rem;
+}
+
+.dropzone {
+	border: 1px dashed var(--border);
+	border-radius: 16px;
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	background: #fdfdfc;
+	transition: border-color 160ms ease, background 160ms ease;
+	cursor: pointer;
+}
+
+.dropzone:is(:hover, :focus-within) {
+	border-color: var(--accent);
+	background: var(--accent-soft);
+}
+
+.dropzone.highlight {
+	border-color: var(--accent);
+	background: var(--accent-soft);
+}
+
+.picker-title {
+	font-weight: 600;
+}
+
+.picker-subtitle {
+	color: var(--muted);
+	font-size: 0.95rem;
+}
+
+input[type="file"] {
+	display: none;
+}
+
+button.primary {
+	border: none;
+	border-radius: 999px;
+	padding: 0.75rem 1.8rem;
+	background: var(--accent);
+	color: #fff;
+	font-weight: 600;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: transform 160ms ease, filter 160ms ease;
+	align-self: start;
+}
+
+button.primary:hover {
+	transform: translateY(-1px);
+	filter: brightness(1.05);
+}
+
+.controls {
+	border-top: 1px solid var(--border);
+	border-bottom: 1px solid var(--border);
+	padding: 1.5rem 0;
+	margin-bottom: 1.5rem;
+}
+
+.controls h2 {
+	margin: 0 0 1rem;
+	font-size: 1.1rem;
+}
+
+.settings-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 1rem;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.field-label {
+	font-size: 0.85rem;
+	color: var(--muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.field input[type="color"] {
+	width: 100%;
+	height: 48px;
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	background: #fff;
+	cursor: pointer;
+}
+
+.field input[type="number"] {
+	width: 100%;
+	padding: 0.65rem 0.9rem;
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	font-size: 0.95rem;
+	background: #fff;
+}
+
+.controls-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 1.25rem;
+}
+
+button.secondary {
+	border-radius: 999px;
+	padding: 0.75rem 1.8rem;
+	border: 1px solid var(--accent);
+	background: transparent;
+	color: var(--accent);
+	font-weight: 600;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: transform 160ms ease, background 160ms ease;
+}
+
+button.secondary:hover {
+	transform: translateY(-1px);
+	background: var(--accent-soft);
+}
+
+.status {
+	margin: 0;
+	color: var(--muted);
+}
+
+.file-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
+.placeholder {
+	grid-column: 1 / -1;
+	padding: 1.75rem;
+	border: 1px dashed var(--border);
+	border-radius: 16px;
+	text-align: center;
+	color: var(--muted);
+	background: #f8faf8;
+}
+
+.preview {
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.preview img {
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	border-radius: 12px;
+	border: 1px solid var(--border);
+	background: #f1f4f2;
+}
+
+.preview figcaption {
+	font-size: 0.85rem;
+	color: var(--muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+	body {
+		padding: 1rem;
+	}
+
+	.inputs {
+		margin-bottom: 1.25rem;
+	}
+
+	.file-list {
+		grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+	}
+}
