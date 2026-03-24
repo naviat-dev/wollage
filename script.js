@@ -68,6 +68,7 @@ const renderList = () => {
 	filesState.forEach(file => {
 		const figure = document.createElement('figure');
 		figure.className = 'preview';
+		figure.id = `file-${file.name.replace(/\s+/g, '-')}`;
 
 		const img = document.createElement('img');
 		const url = URL.createObjectURL(file);
@@ -79,6 +80,12 @@ const renderList = () => {
 		caption.textContent = file.name;
 
 		figure.append(img, caption);
+		figure.addEventListener('click', () => {
+			const confirmed = window.confirm(`Remove ${file.name} from the collage?`);
+			if (!confirmed) return;
+			filesState = filesState.filter(f => f !== file);
+			renderList();
+		});
 		fragment.appendChild(figure);
 	});
 
