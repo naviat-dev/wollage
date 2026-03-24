@@ -9,8 +9,14 @@ const heightInput = document.getElementById('heightInput');
 const generateBtn = document.getElementById('generateBtn');
 const statusText = document.getElementById('statusText');
 const defaultStatus = 'waiting to generate';
+const outputImage = document.getElementById('outputImage');
+const outputPlaceholder = document.getElementById('outputPlaceholder');
+const downloadBtn = document.getElementById('downloadBtn');
+const wallpaperBtn = document.getElementById('wallpaperBtn');
 
 let filesState = [];
+let outputBlobUrl = null;
+let outputBlob = null;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -29,6 +35,23 @@ const hydrateResolutionDefaults = () => {
 
 const updateStatus = message => {
 	statusText.textContent = message;
+};
+
+const resetOutputPreview = () => {
+	if (outputBlobUrl) {
+		URL.revokeObjectURL(outputBlobUrl);
+		outputBlobUrl = null;
+	}
+	outputBlob = null;
+	if (outputImage) {
+		outputImage.removeAttribute('src');
+		outputImage.hidden = true;
+	}
+	if (outputPlaceholder) {
+		outputPlaceholder.style.display = 'block';
+	}
+	downloadBtn.disabled = true;
+	wallpaperBtn.disabled = true;
 };
 
 const renderList = () => {
@@ -105,24 +128,90 @@ fileInput.addEventListener('change', event => addFiles(event.target.files));
 clearBtn.addEventListener('click', resetFiles);
 generateBtn.addEventListener('click', generateCollage);
 hydrateResolutionDefaults();
+resetOutputPreview();
 
 function getOptimalRatio(width, height, count) {
+	if (count <= 1) return [1, 1];
 	const resRatio = height / width;
 	let minDiff = Number.MAX_SAFE_INTEGER;
-	const minFactors = [0, 0];
+	const minFactors = [1, count];
 
-	for (let i = 1; i < count; i++) { // i is height, count / i is width
-		if (count % i == 0) {
-			let workingRatio = i / (count / i);
-			if (Math.abs(resRatio - workingRatio) < minDiff) {
-				minDiff = Math.abs(resRatio - workingRatio);
+	for (let i = 1; i <= count; i++) {
+		if (count % i === 0) {
+			const workingRatio = i / (count / i);
+			const diff = Math.abs(resRatio - workingRatio);
+			if (diff < minDiff) {
+				minDiff = diff;
 				minFactors[0] = i;
 				minFactors[1] = count / i;
 			}
 		}
 	}
+
+	if (minDiff > 0.1) { // the maximum compatible ratio diff is too large to be reasonable for the wallpaper
+		for (let i = 1; i <= count; i++) { // run it again, but this time ignore the exact factors and just find the closest ratio
+			const workingRatio = i / (count / i);
+			const diff = Math.abs(resRatio - workingRatio);
+			if (diff < minDiff) {
+				minDiff = diff;
+				minFactors[0] = i;
+				minFactors[1] = Math.floor(count / i);
+			}
+		}
+	}
+	console.log(`optimal ratio for ${count} images at ${width}x${height} is ${minFactors[0]} rows x ${minFactors[1]} columns`);
 	return minFactors;
 }
+
+const canvasToBlob = canvas => new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+const showOutputPreview = async canvas => {
+	const blob = await canvasToBlob(canvas);
+	if (!blob) {
+		updateStatus('unable to export image');
+		return;
+	}
+	if (outputBlobUrl) {
+		URL.revokeObjectURL(outputBlobUrl);
+	}
+	outputBlob = blob;
+	outputBlobUrl = URL.createObjectURL(blob);
+	outputImage.src = outputBlobUrl;
+	outputImage.hidden = false;
+	outputPlaceholder.style.display = 'none';
+	downloadBtn.disabled = false;
+	wallpaperBtn.disabled = false;
+};
+
+const downloadOutput = () => {
+	if (!outputBlobUrl) return;
+	const link = document.createElement('a');
+	link.href = outputBlobUrl;
+	const width = widthInput.value || 'output';
+	const height = heightInput.value || '';
+	link.download = `wollage-${width}${height ? 'x' + height : ''}.png`;
+	document.body.appendChild(link);
+	link.click();
+	link.remove();
+};
+
+const applyBackground = () => {
+	if (!outputBlobUrl) return;
+	const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+	if (isMobile) {
+		window.open(outputBlobUrl, '_blank');
+		updateStatus('opened the image in a new tab—use your device share menu to set wallpaper');
+		return;
+	}
+	document.body.style.backgroundImage = `url(${outputBlobUrl})`;
+	document.body.style.backgroundSize = 'cover';
+	document.body.style.backgroundAttachment = 'fixed';
+	document.body.style.backgroundPosition = 'center';
+	updateStatus('background updated locally—download the file for a permanent wallpaper');
+};
+
+downloadBtn.addEventListener('click', downloadOutput);
+wallpaperBtn.addEventListener('click', applyBackground);
 
 async function generateCollage() {
 	const width = parseInt(widthInput.value);
@@ -139,7 +228,11 @@ async function generateCollage() {
 		return;
 	}
 
-	updateStatus(`generating background...`);
+	updateStatus('generating background...');
+	outputPlaceholder.style.display = 'block';
+	outputImage.hidden = true;
+	downloadBtn.disabled = true;
+	wallpaperBtn.disabled = true;
 
 	const canvas = document.createElement("canvas");
 	canvas.width = width;
@@ -163,8 +256,8 @@ async function generateCollage() {
 			resizeHeight: squareSize,
 			resizeQuality: "high"
 		});
-		const scale = 1 + Math.random() * 0.5; // random scale between 1 and 1.5
-		const rotation = (Math.random() - 0.5) * 30; // random rotation between -15 and 15 degrees
+		const scale = 1 + Math.random() * 0.25; // random scale between 1 and 1.25
+		const rotation = (Math.random() - 0.5) * 45; // random rotation between -22.5 and 22.5 degrees
 		const row = Math.floor(i / minFactors[1]);
 		const col = i % minFactors[1];
 		const x = col * squareSize;
@@ -183,4 +276,7 @@ async function generateCollage() {
 		);
 		ctx.restore();
 	}
+
+	await showOutputPreview(canvas);
+	updateStatus(`ready: ${filesState.length} images prepared for ${width} × ${height}px output`);
 }
