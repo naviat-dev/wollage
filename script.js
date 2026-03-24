@@ -12,7 +12,6 @@ const defaultStatus = 'waiting to generate';
 const outputImage = document.getElementById('outputImage');
 const outputPlaceholder = document.getElementById('outputPlaceholder');
 const downloadBtn = document.getElementById('downloadBtn');
-const wallpaperBtn = document.getElementById('wallpaperBtn');
 
 let filesState = [];
 let outputBlobUrl = null;
@@ -51,7 +50,6 @@ const resetOutputPreview = () => {
 		outputPlaceholder.style.display = 'block';
 	}
 	downloadBtn.disabled = true;
-	wallpaperBtn.disabled = true;
 };
 
 const renderList = () => {
@@ -187,7 +185,6 @@ const showOutputPreview = async canvas => {
 	outputImage.hidden = false;
 	outputPlaceholder.style.display = 'none';
 	downloadBtn.disabled = false;
-	wallpaperBtn.disabled = false;
 };
 
 const downloadOutput = () => {
@@ -202,23 +199,7 @@ const downloadOutput = () => {
 	link.remove();
 };
 
-const applyBackground = () => {
-	if (!outputBlobUrl) return;
-	const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
-	if (isMobile) {
-		window.open(outputBlobUrl, '_blank');
-		updateStatus('opened the image in a new tab—use your device share menu to set wallpaper');
-		return;
-	}
-	document.body.style.backgroundImage = `url(${outputBlobUrl})`;
-	document.body.style.backgroundSize = 'cover';
-	document.body.style.backgroundAttachment = 'fixed';
-	document.body.style.backgroundPosition = 'center';
-	updateStatus('background updated locally—download the file for a permanent wallpaper');
-};
-
 downloadBtn.addEventListener('click', downloadOutput);
-wallpaperBtn.addEventListener('click', applyBackground);
 
 async function generateCollage() {
 	const width = parseInt(widthInput.value);
@@ -239,7 +220,6 @@ async function generateCollage() {
 	outputPlaceholder.style.display = 'block';
 	outputImage.hidden = true;
 	downloadBtn.disabled = true;
-	wallpaperBtn.disabled = true;
 
 	const canvas = document.createElement("canvas");
 	canvas.width = width;
@@ -258,11 +238,7 @@ async function generateCollage() {
 
 	for (let i = 0; i < indices.length; i++) {
 		updateStatus(`processing image ${i + 1} / ${indices.length}`);
-		const img = await createImageBitmap(filesState[indices[i]], {
-			resizeWidth: squareSize,
-			resizeHeight: squareSize,
-			resizeQuality: "high"
-		});
+		const img = await createImageBitmap(filesState[indices[i]]);
 		const scale = 1 + Math.random() * 0.25; // random scale between 1 and 1.25
 		const rotation = (Math.random() - 0.5) * 45; // random rotation between -22.5 and 22.5 degrees
 		const row = Math.floor(i / minFactors[1]);
