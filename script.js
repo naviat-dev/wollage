@@ -12,12 +12,23 @@ const defaultStatus = 'waiting to generate';
 const outputImage = document.getElementById('outputImage');
 const outputPlaceholder = document.getElementById('outputPlaceholder');
 const downloadBtn = document.getElementById('downloadBtn');
+const siteTitleEl = document.querySelector('header h1');
+const SITE_NAME = 'wollage';
+const APRIL_FOOLS_NAME = 'woleh';
 
 let filesState = [];
 let outputBlobUrl = null;
 let outputBlob = null;
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const applySeasonalSiteName = () => {
+	const today = new Date();
+	const isAprilFools = today.getMonth() === 3 && today.getDate() === 1;
+	const currentName = isAprilFools ? APRIL_FOOLS_NAME : SITE_NAME;
+	if (siteTitleEl) siteTitleEl.textContent = currentName;
+	document.title = currentName;
+};
 
 const hydrateResolutionDefaults = () => {
 	const pixelRatio = window.devicePixelRatio || 1;
@@ -134,6 +145,7 @@ clearBtn.addEventListener('click', resetFiles);
 generateBtn.addEventListener('click', generateCollage);
 hydrateResolutionDefaults();
 resetOutputPreview();
+applySeasonalSiteName();
 
 function getOptimalRatio(width, height, count) {
 	if (count <= 1) return [1, 1];
