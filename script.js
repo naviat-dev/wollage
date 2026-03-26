@@ -250,11 +250,11 @@ async function generateCollage() {
 
 	for (let i = 0; i < indices.length; i++) {
 		updateStatus(`processing image ${i + 1} / ${indices.length}`);
-		const img = await createImageBitmap(filesState[indices[i]]);
+		const img = await createImageBitmap(filesState[i]);
 		const scale = 1 + Math.random() * 0.5; // random scale between 1 and 1.5
 		const rotation = (Math.random() - 0.5) * 45; // random rotation between -22.5 and 22.5 degrees
-		const row = Math.floor(i / minFactors[1]);
-		const col = i % minFactors[1];
+		const row = Math.floor(indices[i] / minFactors[1]);
+		const col = indices[i] % minFactors[1];
 		const x = col * squareSize;
 		const y = row * squareSize;
 		ctx.save();
